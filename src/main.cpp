@@ -5,18 +5,18 @@
 #define dummy_test(func, exp)                       \
             do{                                     \
                 if(func exp == func##_custom exp){  \
-                    printf("ok\n");                   \
+                    printf("ok\n");                 \
                 }else{                              \
-                    printf("dolbaeb\n");              \
+                    printf("ne ok\n");              \
                 }                                   \
             }while(0)
 
 
 int main(){
+    char *a = "aaaaabc";
+    char *b = "abc";
 
-    char *a = "hjvagdsiufhiweghiu";
-    char b[50];
-    strcpy(b, a);
-    printf("%s %s", a, b);
+    dummy_test(strstr, (a, b));
+
     return 0;
 }
