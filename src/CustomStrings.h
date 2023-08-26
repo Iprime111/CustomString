@@ -90,11 +90,35 @@ char *strdup_custom (const char *str);
 ssize_t getline_custom (char **lineptr, size_t *n, FILE *stream);
 
 /*!
+    @brief Finds the first occurrence of the substring needle in the string haystack (naive algorithm)
+    @param[in] haystack Input string
+    @param[in] needle Substring
+    @return Pointer to the begginning of the locate substring
+    @note Can work a bit slow :)
+*/
+char *strstr_custom_naive (const char *haystack, const char *needle);
+
+/*!
     @brief Finds the first occurrence of the substring needle in the string haystack
     @param[in] haystack Input string
     @param[in] needle Substring
     @return Pointer to the begginning of the locate substring
 */
 char *strstr_custom (const char *haystack, const char *needle);
+
+/*!
+    @brief Checks if the begginning of the given string str is substr sequence
+    @param[in] str String to process
+    @param[in] substr Substring buffer
+    @return true if substring is a string's beggining and false if not
+*/
+bool is_substr_in_str (const char *str, const char* substr, size_t substr_sz);
+
+/*!
+    @brief Computes rolling hash for rabin-karp algorithm
+    @param[in] needle Substring to compute hash
+    @return Hash value
+*/
+int compute_needle_hash (const char *needle);
 
 #endif

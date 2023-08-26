@@ -218,14 +218,15 @@ ssize_t getline_custom (char **lineptr, size_t *sz, FILE *stream){
     return (ssize_t) written_symbols;
 }
 
-char *strstr_custom (const char *haystack, const char *needle){
+char *strstr_custom_naive (const char *haystack, const char *needle){
     custom_assert (haystack != NULL,    pointer_is_null,        NULL);
-    custom_assert (needle != NULL,      pointer_is_null,        NULL);
+    custom_assert (needle   != NULL,    pointer_is_null,        NULL);
     custom_assert (haystack != needle,  not_enough_pointers,    NULL);
 
-    bool found_substr = false;
-    bool found_substr_begin = false;
-    const char *needle_begin = needle;
+    bool found_substr        = false;
+    bool found_substr_begin  = false;
+
+    const char *needle_begin      = needle;
     const char *last_substr_begin = NULL;
 
     while (!found_substr && *haystack != '\0'){
@@ -258,4 +259,78 @@ char *strstr_custom (const char *haystack, const char *needle){
     }
 
     return (char *) last_substr_begin;
+}
+
+
+char *strstr_custom (const char *haystack, const char *needle){
+    custom_assert (haystack != NULL,    pointer_is_null,        NULL);
+    custom_assert (needle   != NULL,    pointer_is_null,        NULL);
+    custom_assert (haystack != needle,  not_enough_pointers,    NULL);
+
+    size_t needle_sz   = strlen_custom (needle);
+    size_t processed_sym = 0;
+
+    const char *haystack_begin = haystack;
+
+    int hash = 0;
+    int needle_hash = compute_needle_hash(needle);
+
+    const char *first_occurrence = NULL;
+
+    bool is_running = true;
+
+    while (is_running){
+        if (processed_sym < needle_sz){
+            hash += *haystack;
+            processed_sym++;
+            haystack++;
+            continue;
+        }
+
+        if (hash == needle_hash){
+            first_occurrence = haystack_begin + processed_sym - needle_sz;
+
+            if (is_substr_in_str (first_occurrence, needle, needle_sz))
+                return (char *)first_occurrence;
+
+            first_occurrence = NULL;
+        }
+
+        if (*haystack == '\0')
+            is_running = false;
+
+        hash -= *(haystack - needle_sz);
+        hash += *haystack;
+
+        processed_sym++;
+        haystack++;
+    }
+
+    return (char *) first_occurrence;
+}
+
+bool is_substr_in_str (const char *str, const char* substr, size_t substr_sz){
+    custom_assert (str != NULL,     pointer_is_null,        false);
+    custom_assert (substr != NULL,  pointer_is_null,        false);
+    custom_assert (str != substr,   not_enough_pointers,    false);
+
+    for(ssize_t i = (ssize_t) substr_sz - 1; i >= 0; i--){
+        if (*(str + i) != *(substr + i))
+            return false;
+    }
+
+    return true;
+}
+
+int compute_needle_hash (const char *needle){
+    custom_assert (needle != NULL, pointer_is_null, -1);
+
+    int needle_hash = 0;
+
+    while (*needle != '\0'){
+        needle_hash += *needle;
+        needle++;
+    }
+
+    return needle_hash;
 }
