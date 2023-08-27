@@ -5,6 +5,8 @@ void assert_perror_custom (enum ERROR_CODE code, char *expr, const char *file, c
 
     const char* msg = "??? Unknown code ???";
 
+    // TODO here you can use "&" operator to check multiple errors
+    // see: CustomAssert.h file
     #define MSG_(err_code, descr)       \
         case err_code:                  \
             msg = #err_code ": " descr; \
