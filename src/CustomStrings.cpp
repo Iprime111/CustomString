@@ -2,32 +2,42 @@
 #include "CustomAssert.h"
 
 int puts_custom(const char *str){
+    PushLog (3);
+
     custom_assert (str != NULL, pointer_is_null, EOF);
 
     while (*str != '\0'){
-        if (putc (*str, stdout) == EOF && ferror (stdout))
-            return EOF;
+        if (putc (*str, stdout) == EOF && ferror (stdout)){
+            RETURN EOF;
+        }
         str++;
     }
-    if (putc ('\n', stdout) == EOF && ferror (stdout))
-        return EOF;
 
-    return 0;
+    if (putc ('\n', stdout) == EOF && ferror (stdout)){
+        RETURN EOF;
+    }
+
+    RETURN 0;
 }
 
 char *strchr_custom (const char *str, int ch){
+    PushLog (3);
+
     custom_assert (str != NULL, pointer_is_null, NULL);
 
     while (*str != ch && *str != '\0')
         str++;
 
-    if(*str == '\0')
-        return NULL;
+    if(*str == '\0'){
+        RETURN NULL;
+    }
 
-    return (char *)str;
+    RETURN const_cast <char *> (str);
 }
 
 size_t strlen_custom (const char *str){
+    PushLog (3);
+
     custom_assert (str != NULL, pointer_is_null, 0);
 
     size_t len = 0;
@@ -37,13 +47,15 @@ size_t strlen_custom (const char *str){
         str++;
     }
 
-    return len;
+    RETURN len;
 }
 
 char *strcpy_custom (char *dst, const char *src){
-    custom_assert (dst != NULL,  pointer_is_null,        NULL);
-    custom_assert (src != NULL,  pointer_is_null,        NULL);
-    custom_assert (dst != src,   not_enough_pointers,    NULL);
+    PushLog (3);
+
+    custom_assert (dst != NULL, pointer_is_null,     NULL);
+    custom_assert (src != NULL, pointer_is_null,     NULL);
+    custom_assert (dst != src,  not_enough_pointers, NULL);
 
     char* dst_ret = dst;
 
@@ -55,13 +67,15 @@ char *strcpy_custom (char *dst, const char *src){
 
     *dst = *src;
 
-    return dst_ret;
+    RETURN dst_ret;
 }
 
 char *strncpy_custom (char *dst, const char *src, size_t sz){
-    custom_assert (dst != NULL,  pointer_is_null,        NULL);
-    custom_assert (src != NULL,  pointer_is_null,        NULL);
-    custom_assert (dst != src,   not_enough_pointers,    NULL);
+    PushLog (3);
+
+    custom_assert (dst != NULL, pointer_is_null,     NULL);
+    custom_assert (src != NULL, pointer_is_null,     NULL);
+    custom_assert (dst != src,  not_enough_pointers, NULL);
 
     char* dst_ret = dst;
 
@@ -80,13 +94,15 @@ char *strncpy_custom (char *dst, const char *src, size_t sz){
         n_copy++;
     }
 
-    return dst_ret;
+    RETURN dst_ret;
 }
 
 char *strcat_custom (char *dst, const char *src){
-    custom_assert (dst != NULL,  pointer_is_null,        NULL);
-    custom_assert (src != NULL,  pointer_is_null,        NULL);
-    custom_assert (dst != src,   not_enough_pointers,    NULL);
+    PushLog (3);
+
+    custom_assert (dst != NULL, pointer_is_null,     NULL);
+    custom_assert (src != NULL, pointer_is_null,     NULL);
+    custom_assert (dst != src,  not_enough_pointers, NULL);
 
     char* dst_ret = dst;
 
@@ -96,10 +112,12 @@ char *strcat_custom (char *dst, const char *src){
 
     strcpy_custom (dst, src);
 
-    return dst_ret;
+    RETURN dst_ret;
 }
 
 char *strncat_custom (char *dst, const char *src, size_t sz){
+    PushLog (3);
+
     custom_assert (dst != NULL,  pointer_is_null,        NULL);
     custom_assert (src != NULL,  pointer_is_null,        NULL);
     custom_assert (dst != src,   not_enough_pointers,    NULL);
@@ -121,12 +139,14 @@ char *strncat_custom (char *dst, const char *src, size_t sz){
 
     *dst = '\0';
 
-    return dst_ret;
+    RETURN dst_ret;
 }
 
 char *fgets_custom (char *str, int size, FILE *stream){
-    custom_assert (str != NULL,     pointer_is_null,        NULL);
-    custom_assert (stream != NULL,  pointer_is_null,        NULL);
+    PushLog (3);
+
+    custom_assert (str != NULL,    pointer_is_null, NULL);
+    custom_assert (stream != NULL, pointer_is_null, NULL);
 
     char *str_ret = str;
     int cur_read = 0;
@@ -135,21 +155,23 @@ char *fgets_custom (char *str, int size, FILE *stream){
     while (cur_read < size - 1){
         cur_ch = getc(stream);
 
-        if(ferror(stream))
-            return NULL;
+        if(ferror(stream)){
+            RETURN NULL;
+        }
 
         if (cur_ch == EOF){
-            if(cur_read == 0)
-                return NULL;
+            if(cur_read == 0){
+                RETURN NULL;
+            }
 
             *str = '\0';
-            return str_ret;
+            RETURN str_ret;
         }
 
         if (cur_ch == '\n'){
             *str = '\n';
             *(str + 1) = '\0';
-            return str_ret;
+            RETURN str_ret;
         }
 
         *str = (char)cur_ch;
@@ -159,25 +181,30 @@ char *fgets_custom (char *str, int size, FILE *stream){
     }
 
     *str = '\0';
-    return str_ret;
+    RETURN str_ret;
 }
 
 char *strdup_custom (const char *str){
+    PushLog (3);
+
     custom_assert(str != NULL, pointer_is_null, NULL);
 
     size_t len = strlen_custom (str);
 
     char *new_str = (char *) malloc (sizeof(char) * (len + 1));
 
-    if (new_str == NULL)
-        return NULL;
+    if (new_str == NULL){
+        RETURN NULL;
+    }
 
-    return strcpy_custom (new_str, str);
+    RETURN strcpy_custom (new_str, str);
 }
 
 ssize_t getline_custom (char **lineptr, size_t *sz, FILE *stream){
-    custom_assert (sz != NULL,       pointer_is_null, -1);
-    custom_assert (stream != NULL,   pointer_is_null, -1);
+    PushLog (3);
+
+    custom_assert (sz != NULL,     pointer_is_null, -1);
+    custom_assert (stream != NULL, pointer_is_null, -1);
 
     if(*lineptr == NULL){
         *sz = DEFAULT_BUFFER_SIZE;
@@ -192,7 +219,7 @@ ssize_t getline_custom (char **lineptr, size_t *sz, FILE *stream){
     size_t written_symbols = 0;
 
     while (cur_ch != '\n' && cur_ch != EOF){
-        custom_assert (!ferror (stream), file_reading_error, -1);
+        custom_assert (!ferror (stream), cannot_open_file, -1);
 
         if (written_symbols + 2 >= *sz){
             *sz += ADDITIONAL_BUFFER_SIZE;
@@ -215,13 +242,15 @@ ssize_t getline_custom (char **lineptr, size_t *sz, FILE *stream){
         *buf_ptr = '\0';
     }
 
-    return (ssize_t) written_symbols;
+    RETURN (ssize_t) written_symbols;
 }
 
 char *strstr_custom_naive (const char *haystack, const char *needle){
-    custom_assert (haystack != NULL,    pointer_is_null,        NULL);
-    custom_assert (needle   != NULL,    pointer_is_null,        NULL);
-    custom_assert (haystack != needle,  not_enough_pointers,    NULL);
+    PushLog (3);
+
+    custom_assert (haystack != NULL,   pointer_is_null,     NULL);
+    custom_assert (needle   != NULL,   pointer_is_null,     NULL);
+    custom_assert (haystack != needle, not_enough_pointers, NULL);
 
     bool found_substr        = false;
     bool found_substr_begin  = false;
@@ -258,14 +287,16 @@ char *strstr_custom_naive (const char *haystack, const char *needle){
         haystack++;
     }
 
-    return (char *) last_substr_begin;
+    RETURN const_cast <char *> (last_substr_begin);
 }
 
 
 char *strstr_custom (const char *haystack, const char *needle){
-    custom_assert (haystack != NULL,    pointer_is_null,        NULL);
-    custom_assert (needle   != NULL,    pointer_is_null,        NULL);
-    custom_assert (haystack != needle,  not_enough_pointers,    NULL);
+    PushLog (3);
+
+    custom_assert (haystack != NULL,   pointer_is_null,     NULL);
+    custom_assert (needle   != NULL,   pointer_is_null,     NULL);
+    custom_assert (haystack != needle, not_enough_pointers, NULL);
 
     size_t needle_sz   = strlen_custom (needle);
     size_t processed_sym = 0;
@@ -290,14 +321,16 @@ char *strstr_custom (const char *haystack, const char *needle){
         if (hash == needle_hash){
             first_occurrence = haystack_begin + processed_sym - needle_sz;
 
-            if (is_substr_in_str (first_occurrence, needle, needle_sz))
-                return (char *)first_occurrence;
+            if (is_substr_in_str (first_occurrence, needle, needle_sz)){
+                RETURN const_cast <char *> (first_occurrence);
+            }
 
             first_occurrence = NULL;
         }
 
-        if (*haystack == '\0')
+        if (*haystack == '\0'){
             is_running = false;
+        }
 
         hash -= *(haystack - needle_sz);
         hash += *haystack;
@@ -306,23 +339,28 @@ char *strstr_custom (const char *haystack, const char *needle){
         haystack++;
     }
 
-    return (char *) first_occurrence;
+    RETURN const_cast <char *> (first_occurrence);
 }
 
 bool is_substr_in_str (const char *str, const char* substr, size_t substr_sz){
-    custom_assert (str != NULL,     pointer_is_null,        false);
-    custom_assert (substr != NULL,  pointer_is_null,        false);
-    custom_assert (str != substr,   not_enough_pointers,    false);
+    PushLog (4);
+
+    custom_assert (str != NULL,    pointer_is_null,     false);
+    custom_assert (substr != NULL, pointer_is_null,     false);
+    custom_assert (str != substr,  not_enough_pointers, false);
 
     for(ssize_t i = (ssize_t) substr_sz - 1; i >= 0; i--){
-        if (*(str + i) != *(substr + i))
-            return false;
+        if (*(str + i) != *(substr + i)){
+            RETURN false;
+        }
     }
 
-    return true;
+    RETURN true;
 }
 
 int compute_needle_hash (const char *needle){
+    PushLog (4);
+
     custom_assert (needle != NULL, pointer_is_null, -1);
 
     int needle_hash = 0;
@@ -332,37 +370,6 @@ int compute_needle_hash (const char *needle){
         needle++;
     }
 
-    return needle_hash;
+    RETURN needle_hash;
 }
 
-
-/*⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⣀⣀⣀⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠀⡀⣀⠀⣀⠀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⠀⠀⠀⠀⠀⠀⢸⢧⡇⣿⢼⠉⡃⣿⠭⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⡄⠀⠀⠀⠀⠘⠈⠃⠋⠈⠛⠁⠛⠛⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⣿⣿⣿⣿⣿⠿⠛⠻⠛⠛⠛⠛⠉⠉⠈⠈⠉⠛⠛⢻⣿⣿⢿⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣿⣿⡿⠉⠀⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⣿⡀⠿⠂⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠀⠉⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢿⡏⣠⣴⣷⣶⣶⣤⠀⠀⠀⠀⢠⣤⣤⣤⡤⠀⠀⠀⠀⠀⠀⠀⠀⠇⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣾⣇⢿⣾⣿⣿⣿⣿⣷⠀⠀⠀⣾⣴⡫⣬⣍⡳⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠐⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⢹⡇⣾⡿⢥⣿⣿⣿⣏⠀⠀⠀⢹⣅⡠⠿⠃⠀⠋⠀⠀⠀⠀⠀⠀⠀⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠯⠋⠈⠀⣺⠿⠟⠁⠀⠀⠀⠈⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠀⠀⠀⠀⢀⡀⠀⠀⠀⠀⠀⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠂⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⠀⢀⣴⡿⠃⠀⠀⠀⠀⠀⠈⠿⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢻⣶⢿⠟⢁⣰⣷⢦⣠⣤⣴⠀⠀⠀⠙⠢⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⣿⣿⣾⣿⣶⣯⣀⣂⣊⣘⣀⡀⣠⣷⣤⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⣿⣿⣿⠻⣍⣍⠙⠁⠀⣠⠴⠋⠉⠣⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⣿⣿⡆⢿⣟⣛⣷⣿⠃⠀⠀⠀⠈⢸⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢿⣿⠆⠙⠛⠛⠋⠀⠀⠀⠀⠀⠉⠀⠀⠈⠀⢠⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⣾⣧⠡⢶⣤⡀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠛⠿⣶⣦⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⣾⣿⣿⣿⣿⣿⣦⣾⣶⣿⣗⢔⢀⣠⣶⣿⡃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣹⣿⣿⣿⣶⣤⣄⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣠⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⢸⣿⣿⣿⣿⣽⡟⢻⣿⠻⢷⣷⡄⠀⠀⠀⠀⠀⠀⠀⠀⢠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣦⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣤⣿⣿⠿⡏⢹⠻⠛⠛⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣦⣄⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡾⠇⢸⡲⣶⠆⢀⠄⠀⠀⠀⠀⠀⠀⢀⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⠀⠀⠁⠈⠀⠟⠀⠀⠀⠀⠀⢠⢾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣶⣶⣦⣤⣤⣤⣄⣀⣸⣷⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠰⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠙⠛⠛⠛⠛⠛⠛⠛⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠟⠛⠛⠛⠛⠛⠛⠉⠉⠉⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-*/
