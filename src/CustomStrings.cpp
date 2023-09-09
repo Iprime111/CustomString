@@ -20,6 +20,7 @@ int puts_custom(const char *str){
     RETURN 0;
 }
 
+
 char *strchr_custom (const char *str, int ch){
     PushLog (3);
 

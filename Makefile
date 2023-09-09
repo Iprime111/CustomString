@@ -1,7 +1,7 @@
 srcDir = src
 outDir = build
 
-sources = main.cpp CustomStrings.cpp Onegin.cpp
+sources = main.cpp CustomStrings.cpp Onegin.cpp FileIO.cpp
 target = CustomStrings
 
 srcObjects = $(sources:.cpp=.o)
@@ -27,8 +27,6 @@ release: makeMode = release
 release: $(buildDir)/$(target)
 
 $(srcObjects): %.o: $(srcDir)/%.cpp
-	@echo compile
-
 	cd CustomAssert && make $(makeMode)
 	cd CustomAssert/ColorConsole && make $(makeMode)
 

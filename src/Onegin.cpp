@@ -5,8 +5,11 @@
 #include "Onegin.h"
 #include "CustomAssert.h"
 
-enum COMPARE_RESULT compare_chars (char first_char, char second_char){
+enum COMPARE_RESULT compare_chars (const void *first_pointer, const void *second_pointer){
     PushLog (4);
+
+    const char first_char  = *((const char *) first_pointer);
+    const char second_char = *((const char *) second_pointer);
 
     if (first_char > second_char){
         RETURN GREATER;
@@ -19,13 +22,159 @@ enum COMPARE_RESULT compare_chars (char first_char, char second_char){
     RETURN EQUAL;
 }
 
-void qsort_char (char *sort_string, const size_t length){
+enum COMPARE_RESULT compare_ints (const void *first_pointer, const void *second_pointer){
+    PushLog (4);
+
+    const int first_int  = *((const int *) first_pointer);
+    const int second_int = *((const int *) second_pointer);
+
+    if (first_int > second_int){
+        RETURN GREATER;
+    }
+
+    if (first_int < second_int){
+        RETURN LESS;
+    }
+
+    RETURN EQUAL;
+}
+
+enum COMPARE_RESULT compare_strings (const void *first_pointer, const void *second_pointer){
+    PushLog (4);
+
+    const char *first_string  = *((const char * const *) first_pointer);
+    const char *second_string = *((const char * const *) second_pointer);
+
+    while (!is_string_end (*first_string) && !is_string_end (*second_string)){
+
+        if (is_punctuation_character (*first_string)){
+            first_string++;
+            continue;
+        }
+
+        if (is_punctuation_character (*second_string)){
+            second_string++;
+            continue;
+        }
+
+        if (*first_string > *second_string){
+            RETURN GREATER;
+        } else if (*first_string < *second_string){
+            RETURN LESS;
+        }
+
+        first_string ++;
+        second_string++;
+    }
+
+    if (!is_string_end (*first_string) && is_string_end (*second_string)){
+        RETURN GREATER;
+    }
+
+    if (is_string_end (*first_string)  && !is_string_end (*second_string)){
+        RETURN LESS;
+    }
+
+    RETURN EQUAL;
+}
+
+enum COMPARE_RESULT compare_strings_reverse (const void *first_pointer, const void *second_pointer){
+    PushLog (4);
+
+    const char *first_string_begin  = *((const char * const *) first_pointer);
+    const char *second_string_begin = *((const char * const *) second_pointer);
+
+    const size_t first_string_len  = line_len (first_string_begin);
+    const size_t second_string_len = line_len (second_string_begin);
+
+    const char *first_string  = first_string_begin  + first_string_len;
+    const char *second_string = second_string_begin + second_string_len;
+
+
+    while (first_string != first_string_begin && second_string != second_string_begin){
+
+        if (is_punctuation_character (*first_string)){
+            first_string--;
+            continue;
+        }
+
+        if (is_punctuation_character (*second_string)){
+            second_string--;
+            continue;
+        }
+
+        if (*first_string > *second_string){
+            RETURN GREATER;
+        } else if (*first_string < *second_string){
+            RETURN LESS;
+        }
+
+        first_string --;
+        second_string--;
+    }
+
+    if (first_string != first_string_begin && second_string == second_string_begin){
+        RETURN GREATER;
+    }
+
+    if (first_string == first_string_begin && second_string != second_string_begin){
+        RETURN LESS;
+    }
+
+    RETURN EQUAL;
+}
+
+size_t line_len (const char *line){
+    PushLog (4);
+
+    size_t length = 0;
+
+    while (!is_string_end (*(line + length))){
+        length++;
+    }
+
+    RETURN length;
+}
+
+bool is_punctuation_character (char ch){
+    PushLog (4);
+
+    RETURN !isalpha (ch) && !isdigit (ch);
+}
+
+bool is_string_end (char ch){
+    PushLog (4);
+
+    RETURN ch == '\n' || ch == '\0';
+}
+
+void swap_elements (void *element_1, void *element_2, size_t element_size){
+    PushLog (4);
+
+    if (element_1 == element_2){
+        RETURN ;
+    }
+
+    char *element_1_char = (char *) element_1;
+    char *element_2_char = (char *) element_2;
+
+    char temp = 0;
+
+    for (size_t byte_index = 0; byte_index < element_size; byte_index++){
+        temp = *(element_1_char + byte_index);
+        *(element_1_char + byte_index) = *(element_2_char + byte_index);
+        *(element_2_char + byte_index) = temp;
+    }
+
+    RETURN ;
+}
+
+void qsort_custom (void *sort_array, const size_t length, enum COMPARE_RESULT (*comparator)(const void *, const void *), size_t element_size){
     PushLog (3);
 
-    //printf ("%lu %p ", length, sort_string);
-    //printf ("%s\n", sort_string);
+    char *sort_array_char = (char *) sort_array;
 
-    custom_assert (sort_string != NULL, pointer_is_null, (void)0);
+    custom_assert (sort_array_char != NULL, pointer_is_null, (void)0);
 
     if (length < 2){
         RETURN ;
@@ -33,33 +182,43 @@ void qsort_char (char *sort_string, const size_t length){
 
     size_t pivot_index = (length + 1) / 2;
 
-    char pivot = *(sort_string + pivot_index);
+    swap_elements (sort_array_char + pivot_index * element_size, sort_array_char, element_size);
 
-    char *greater_chars = (char *) calloc (length, sizeof (char));
-    char *less_chars    = (char *) calloc (length, sizeof (char));
+    pivot_index = 0;
 
-    size_t greater_chars_index = 0;
-    size_t less_chars_index    = 0;
+    size_t greater_count = 0;
+    size_t less_count    = 0;
 
-    size_t pivot_count = 0;
+    size_t pivot_count = 1;
 
-    for (size_t char_index = 0; char_index < length; char_index++){
-        char current_char = *(sort_string + char_index);
-
-        switch (compare_chars (current_char, pivot)){
+    for (size_t index = 1; index < length; index++){
+        switch ((*comparator) (sort_array_char + index * element_size,
+            sort_array_char + pivot_index * element_size)){
 
             case GREATER:
-                greater_chars [greater_chars_index] = current_char;
-                greater_chars_index++;
+                greater_count++;
                 break;
 
             case EQUAL:
-                pivot_count += 1;
+                swap_elements (sort_array_char + (pivot_index + pivot_count) * element_size,
+                        sort_array_char + index * element_size, element_size);
+
+                pivot_count++;
                 break;
 
             case LESS:
-                less_chars [less_chars_index] = current_char;
-                less_chars_index++;
+                if (index == pivot_index + pivot_count){
+                    swap_elements (sort_array_char + pivot_index * element_size,
+                            sort_array_char + index * element_size, element_size);
+                }else{
+                    swap_elements (sort_array_char + pivot_index * element_size,
+                            sort_array_char + (pivot_index + pivot_count) * element_size, element_size);
+
+                    swap_elements (sort_array_char + pivot_index * element_size,
+                            sort_array_char + index * element_size, element_size);
+                }
+                pivot_index++;
+                less_count++;
                 break;
 
             default:
@@ -68,35 +227,7 @@ void qsort_char (char *sort_string, const size_t length){
         };
     }
 
-    for (size_t index = 0; index < less_chars_index; index++){
-        *(sort_string + index) = less_chars [index];
-    }
-
-    for (size_t index = less_chars_index; index < less_chars_index + pivot_count; index++){
-        *(sort_string + index) = pivot;
-    }
-
-    for (size_t index = 0; index < greater_chars_index; index++){
-        *(sort_string + index + less_chars_index + pivot_count) = greater_chars [index];
-    }
-
-    //printf ("%lu %lu %lu\n", less_chars_index, greater_chars_index, pivot_count);
-
-    free (greater_chars);
-    free (less_chars);
-
-    qsort_char (sort_string,                                  less_chars_index);
-    qsort_char (sort_string + less_chars_index + pivot_count, greater_chars_index);
+    qsort_custom (sort_array_char,                                             less_count,    comparator, element_size);
+    qsort_custom (sort_array_char + (less_count + pivot_count) * element_size, greater_count, comparator, element_size);
 }
 
-void delete_punctuation (char *line){
-    PushLog (3);
-
-    while (*line != '\0'){
-        if (!isalpha (*line) && !isdigit (*line)){
-            *line = ' ';
-        }
-    }
-
-    RETURN ;
-}
