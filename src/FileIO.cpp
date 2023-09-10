@@ -4,8 +4,15 @@
 #include <fcntl.h>
 
 #include "FileIO.h"
-#include "CustomAssert.h"
+#include "CustomAssert.h" //
+                          // TODO move all headers file to "include/" dir, then add "-Iinclude" flag to compiler
+                          // It will separate public interface of all of your functions from its private interface and realizations
 
+// TODO It's unclear to me what this function does
+// According to "get_file_size" I assumed that function just to
+// count line numbers in file
+// But actually this function allocates file buffer, reads file in the buffer, then splits file into array of lines etc.
+// Please, either rename it or split into gifferent functions
 size_t get_file_lines (const char *filename, char **file_buffer, ssize_t *file_size, char ***text_lines){
     PushLog (2);
 
@@ -16,7 +23,7 @@ size_t get_file_lines (const char *filename, char **file_buffer, ssize_t *file_s
 
     read_file (filename, *file_buffer, *file_size);
 
-    size_t new_line_count = split_buffer (*file_buffer, NULL);
+    size_t new_line_count = split_buffer (*file_buffer, NULL); // TODO why is it "new"? Where are olg good classical "line_count"?))
     *text_lines           = (char **) calloc (new_line_count, sizeof (char *));
 
     split_buffer (*file_buffer, *text_lines);
@@ -50,9 +57,12 @@ void read_file (const char *filename, char *buffer, ssize_t file_size){
 
     custom_assert (close (file_descriptor) == 0, file_close_error, (void) 0);
 
-    RETURN ;
+    RETURN ; // TODO why is there space
+    //----^------
+    //WhY???@?@?@??00
 }
 
+// TODO split to what? Split to two same buffers? Or to ten unique copies with separate memory? Add this info into function's name
 size_t split_buffer (char *file_buffer, char **line_buffer){
     PushLog (3);
 
@@ -61,15 +71,20 @@ size_t split_buffer (char *file_buffer, char **line_buffer){
     char *current_symbol = file_buffer;
     size_t new_line_index = 0;
 
+    // TODO you can avoid duplication of stored information and copiing symbols to lines buffer
+    // think how....
+    // hint #1: you have already stored those lines in file buffer
+    // hint #2: line ends with "\n" or "\0"
+    //
     while (*current_symbol != '\0'){
-        if (line_buffer != NULL){
-            *(line_buffer + new_line_index) = current_symbol;
+        if (line_buffer != NULL){                             // TODO why do you have to check it in EVERY cycle iteration while you can just move this check into function's start?
+            *(line_buffer + new_line_index) = current_symbol; // TODO use operator[], please. You should not use it only when you're doing some *magic* with pointers and arrays.
         }
 
-        if ((current_symbol = strchr (current_symbol, '\n')) == NULL)
+        if ((current_symbol = strchr (current_symbol, '\n')) == NULL) // TODO do you really call strchr on every cycle's iteration? You want your function to be O(n^2) don't you?
             break;
 
-        new_line_index++;
+        new_line_index++; // TODO I believe more appropriate name is "current_line_index" according to "current_symdol"
         current_symbol++;
     }
 
@@ -124,7 +139,7 @@ void write_buffer (int file_descriptor, const char *buffer, ssize_t buffer_size)
     RETURN ;
 }
 
-int open_file_w (const char *filename){
+int open_file_w (const char *filename){ // TODO what are you gonna do with those 3 seconds you save writing "w" instead of "write"?)) Please, fix it.
     PushLog (4);
 
     int file_descriptor = -1;

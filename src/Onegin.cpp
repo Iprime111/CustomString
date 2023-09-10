@@ -134,6 +134,9 @@ void swap_elements (void *element_1, void *element_2, size_t element_size){
 
     char temp = 0;
 
+    // TODO why are you gay?
+    // Actually, why are you hate operator[] :c
+    //
     for (size_t byte_index = 0; byte_index < element_size; byte_index++){
         temp = *(element_1_char + byte_index);
         *(element_1_char + byte_index) = *(element_2_char + byte_index);
@@ -150,12 +153,16 @@ void qsort_custom (void *sort_array, const size_t length, compare_function_t com
 
     custom_assert (sort_array_char != NULL, pointer_is_null, (void)0);
 
+    // TODO so good naming!
+    // It's well-known all of us has a friend called Sadgewick who invented some sorting optimizations...
     if (sadgewick_optimization (sort_array_char, length, comparator, element_size)){
         RETURN ;
     }
 
+    // TODO "+1" -- сомнительно но окээээй
     size_t pivot_index = (length + 1) / 2;
 
+    // TODO maybe it is a good time to introduce get_element_function(array, idx, element_size)?
     swap_elements (sort_array_char + pivot_index * element_size, sort_array_char, element_size);
 
     pivot_index = 0;
@@ -165,13 +172,82 @@ void qsort_custom (void *sort_array, const size_t length, compare_function_t com
 
     size_t pivot_count = 1;
 
+    // TODO as I told you, write function called "paritation" or somehow else
+    // because it's actually a separated logic
     for (size_t index = 1; index < length; index++){
         int compare_result = (*comparator) (sort_array_char + index * element_size,
                         sort_array_char + pivot_index * element_size);
 
         if (compare_result > 0){
             greater_count++;
-
+//TODO too many swaps, let me explain paritation algo to you
+//TODO maybe you can avoid so many swaps by moving pivot at zero position, like I told you, but okaaay...
+//
+//imagine you have an array of nums
+// [5, 0, 6, 7, 5, 4, 9, 2, 1]
+//
+// you've picked 5 as your pivot moved it to 0-position and wanna pariatate your array now
+// let's do it step-by-step
+//
+// first, let's get two counters (left and right)
+// left  (l) goes left-to-right and right (r) goes right-to-left
+//
+// there is an invariant... (things are called invariant if them stays unchanged for whole algorithm)
+// ...that 'left' should always point at element that are smaller than pivot
+// and 'right' should always point at element that are bigger than pivot
+//
+// lets do some steps:
+//
+// 1. l=0 < 5 okay
+//    r=1 < 5 (not okay)
+//
+//    now we need something larger than 5 to swap with
+//    so we just continue moving l, but not r
+//  [5, 0, 6, 7, 5, 4, 9, 2, 1]
+//      ^                    ^
+//      l                    r
+//
+// 2. moving l until l points to somethin bigger than 5
+// [5, 0, 6, 7, 5, 4, 9, 2, 1]
+//       ^                  ^
+//       l                  r
+//  l = 6 > 5 (not okay)
+//  r = 1 < 5 (not okay)
+//
+// so now we swap elements pointed by l and r:
+// [5, 0, 1, 7, 5, 4, 9, 2, 6]
+//        ^                 ^
+//        l                 r
+//
+// and moving next:
+// [5, 0, 6, 7, 5, 4, 9, 2, 1]
+//           ^           ^
+//           l           r
+//
+// same situation, so we swap again:
+// [5, 0, 1, 2, 5, 4, 9, 7, 6]
+//           ^           ^
+//           l           r
+//
+// and moving next:
+// [5, 0, 1, 2, 5, 4, 9, 7, 6]
+//              ^     ^
+//              l     r
+// now "l" is eqaul to pivot and as we previously desided, less-or-equal elements are on the left
+// "r" is also saves its invariant
+//  so moving next...
+// [5, 0, 1, 2, 5, 4, 9, 7, 6]
+//                 ^
+//                l,r
+// now l and r positions are equal, so the last thing we have to do is to move pivot element back: just after "l" element:
+//
+// [0, 1, 2, 5, 4, 5, 9, 7, 6]
+//              ^
+//             l,r
+//  and our array is fully paritated!
+//  please, code it now)
+//
+//
         }else if (compare_result < 0){
             if (index == pivot_index + pivot_count){
                 swap_elements (sort_array_char + pivot_index * element_size,
@@ -198,6 +274,8 @@ void qsort_custom (void *sort_array, const size_t length, compare_function_t com
     qsort_custom (sort_array_char + (less_count + pivot_count) * element_size, greater_count, comparator, element_size);
 }
 
+
+// TODO okay, I got it, but rename this function like "small_array_size_optimization" or something....
 bool sadgewick_optimization (char *sort_array, const size_t length, compare_function_t comparator, size_t element_size){
     PushLog (3);
 
