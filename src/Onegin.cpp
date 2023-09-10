@@ -180,6 +180,14 @@ void qsort_custom (void *sort_array, const size_t length, enum COMPARE_RESULT (*
         RETURN ;
     }
 
+    if (length == 2){
+        if ((*comparator) (sort_array_char, sort_array_char + element_size) > 0){
+            swap_elements (sort_array_char, sort_array_char + element_size, element_size);
+        }
+
+        RETURN ;
+    }
+
     size_t pivot_index = (length + 1) / 2;
 
     swap_elements (sort_array_char + pivot_index * element_size, sort_array_char, element_size);

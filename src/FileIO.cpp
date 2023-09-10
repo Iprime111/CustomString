@@ -6,7 +6,25 @@
 #include "FileIO.h"
 #include "CustomAssert.h"
 
-ssize_t get_file_size (char *filename){
+size_t get_file_lines (const char *filename, char **file_buffer, ssize_t *file_size, char ***text_lines){
+    PushLog (2);
+
+    *file_size  = get_file_size (filename);
+    custom_assert (*file_size > 0, invalid_value, 0);
+
+    *file_buffer = (char *) calloc ((size_t) *file_size + 1, sizeof (char));
+
+    read_file (filename, *file_buffer, *file_size);
+
+    size_t new_line_count = split_buffer (*file_buffer, NULL);
+    *text_lines           = (char **) calloc (new_line_count, sizeof (char *));
+
+    split_buffer (*file_buffer, *text_lines);
+
+    RETURN new_line_count;
+}
+
+ssize_t get_file_size (const char *filename){
     PushLog (3);
 
     struct stat file_statistics;
@@ -16,7 +34,7 @@ ssize_t get_file_size (char *filename){
     RETURN file_statistics.st_size;
 }
 
-void read_file (char *filename, char *buffer, ssize_t file_size){
+void read_file (const char *filename, char *buffer, ssize_t file_size){
     PushLog (3);
 
     custom_assert (filename != NULL,   pointer_is_null,     (void)0);
@@ -106,7 +124,7 @@ void write_buffer (int file_descriptor, const char *buffer, ssize_t buffer_size)
     RETURN ;
 }
 
-int open_file_w (char *filename){
+int open_file_w (const char *filename){
     PushLog (4);
 
     int file_descriptor = -1;
