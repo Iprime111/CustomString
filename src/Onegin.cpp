@@ -4,6 +4,13 @@
 
 #include "Onegin.h"
 #include "CustomAssert.h"
+#include "TextTypes.h"
+
+#define element(element_index) get_element (sort_array_char, element_index, element_size)
+
+inline char *get_element (char *array, size_t index, size_t element_size){
+    return array + index * element_size;
+}
 
 int compare_chars (const void *first_pointer, const void *second_pointer){
     PushLog (4);
@@ -17,11 +24,11 @@ int compare_ints (const void *first_pointer, const void *second_pointer){
     RETURN *((const char *) first_pointer) - *((const char *) second_pointer);
 }
 
-int compare_strings (const void *first_pointer, const void *second_pointer){
+int compare_lines (const void *first_pointer, const void *second_pointer){
     PushLog (4);
 
-    const char *first_string  = *((const char * const *) first_pointer);
-    const char *second_string = *((const char * const *) second_pointer);
+    const char *first_string  = ((const TEXT_LINE*) first_pointer)-> pointer;
+    const char *second_string = ((const TEXT_LINE*) second_pointer)->pointer;
 
     while (!is_string_end (*first_string) && !is_string_end (*second_string)){
 
@@ -54,20 +61,16 @@ int compare_strings (const void *first_pointer, const void *second_pointer){
     RETURN 0;
 }
 
-int compare_strings_reverse (const void *first_pointer, const void *second_pointer){
+int compare_lines_reverse (const void *first_pointer, const void *second_pointer){
     PushLog (4);
 
-    const char *first_string_begin  = *((const char * const *) first_pointer);
-    const char *second_string_begin = *((const char * const *) second_pointer);
+    const TEXT_LINE *first_line  = (const TEXT_LINE*) first_pointer;
+    const TEXT_LINE *second_line = (const TEXT_LINE*) second_pointer;
 
-    const size_t first_string_len  = line_len (first_string_begin);
-    const size_t second_string_len = line_len (second_string_begin);
+    const char *first_string  = first_line->pointer  + first_line->length;
+    const char *second_string = second_line->pointer + second_line->length;
 
-    const char *first_string  = first_string_begin  + first_string_len;
-    const char *second_string = second_string_begin + second_string_len;
-
-
-    while (first_string != first_string_begin && second_string != second_string_begin){
+    while (first_string != first_line->pointer && second_string != second_line->pointer){
 
         if (is_punctuation_character (*first_string)){
             first_string--;
@@ -87,27 +90,15 @@ int compare_strings_reverse (const void *first_pointer, const void *second_point
         second_string--;
     }
 
-    if (first_string != first_string_begin && second_string == second_string_begin){
+    if (first_string != first_line->pointer && second_string == second_line->pointer){
         RETURN 1;
     }
 
-    if (first_string == first_string_begin && second_string != second_string_begin){
+    if (first_string == first_line->pointer && second_string != second_line->pointer){
         RETURN -1;
     }
 
     RETURN 0;
-}
-
-size_t line_len (const char *line){
-    PushLog (4);
-
-    size_t length = 0;
-
-    while (!is_string_end (*(line + length))){
-        length++;
-    }
-
-    RETURN length;
 }
 
 bool is_punctuation_character (char ch){
@@ -126,7 +117,7 @@ void swap_elements (void *element_1, void *element_2, size_t element_size){
     PushLog (4);
 
     if (element_1 == element_2){
-        RETURN ;
+        RETURN;
     }
 
     char *element_1_char = (char *) element_1;
@@ -134,16 +125,13 @@ void swap_elements (void *element_1, void *element_2, size_t element_size){
 
     char temp = 0;
 
-    // TODO why are you gay?
-    // Actually, why are you hate operator[] :c
-    //
     for (size_t byte_index = 0; byte_index < element_size; byte_index++){
-        temp = *(element_1_char + byte_index);
-        *(element_1_char + byte_index) = *(element_2_char + byte_index);
-        *(element_2_char + byte_index) = temp;
+        temp = element_1_char [byte_index];
+        element_1_char [byte_index] = element_2_char [byte_index];
+        element_2_char [byte_index] = temp;
     }
 
-    RETURN ;
+    RETURN;
 }
 
 void qsort_custom (void *sort_array, const size_t length, compare_function_t comparator, size_t element_size){
@@ -153,17 +141,15 @@ void qsort_custom (void *sort_array, const size_t length, compare_function_t com
 
     custom_assert (sort_array_char != NULL, pointer_is_null, (void)0);
 
-    // TODO so good naming!
-    // It's well-known all of us has a friend called Sadgewick who invented some sorting optimizations...
-    if (sadgewick_optimization (sort_array_char, length, comparator, element_size)){
-        RETURN ;
+    if (small_array_optimization (sort_array_char, length, comparator, element_size)){
+        RETURN;
     }
 
     // TODO "+1" -- сомнительно но окээээй
     size_t pivot_index = (length + 1) / 2;
 
-    // TODO maybe it is a good time to introduce get_element_function(array, idx, element_size)?
-    swap_elements (sort_array_char + pivot_index * element_size, sort_array_char, element_size);
+    swap_elements (element (pivot_index),
+            element (0), element_size);
 
     pivot_index = 0;
 
@@ -175,8 +161,8 @@ void qsort_custom (void *sort_array, const size_t length, compare_function_t com
     // TODO as I told you, write function called "paritation" or somehow else
     // because it's actually a separated logic
     for (size_t index = 1; index < length; index++){
-        int compare_result = (*comparator) (sort_array_char + index * element_size,
-                        sort_array_char + pivot_index * element_size);
+        int compare_result = (*comparator) (element (index),
+                        element (pivot_index));
 
         if (compare_result > 0){
             greater_count++;
@@ -250,33 +236,28 @@ void qsort_custom (void *sort_array, const size_t length, compare_function_t com
 //
         }else if (compare_result < 0){
             if (index == pivot_index + pivot_count){
-                swap_elements (sort_array_char + pivot_index * element_size,
-                        sort_array_char + index * element_size, element_size);
-            }else{
-                swap_elements (sort_array_char + pivot_index * element_size,
-                        sort_array_char + (pivot_index + pivot_count) * element_size, element_size);
+                swap_elements (element (pivot_index),element (index), element_size);
 
-                swap_elements (sort_array_char + pivot_index * element_size,
-                        sort_array_char + index * element_size, element_size);
+            }else{
+                swap_elements (element (pivot_index), element (pivot_index + pivot_count), element_size);
+
+                swap_elements (element (pivot_index), element (index), element_size);
             }
             pivot_index++;
             less_count++;
 
         }else{
-            swap_elements (sort_array_char + (pivot_index + pivot_count) * element_size,
-                    sort_array_char + index * element_size, element_size);
+            swap_elements (element (pivot_index + pivot_count), element (index), element_size);
 
             pivot_count++;
         }
     }
 
-    qsort_custom (sort_array_char,                                             less_count,    comparator, element_size);
-    qsort_custom (sort_array_char + (less_count + pivot_count) * element_size, greater_count, comparator, element_size);
+    qsort_custom (element (0),                        less_count,    comparator, element_size);
+    qsort_custom (element (less_count + pivot_count), greater_count, comparator, element_size);
 }
 
-
-// TODO okay, I got it, but rename this function like "small_array_size_optimization" or something....
-bool sadgewick_optimization (char *sort_array, const size_t length, compare_function_t comparator, size_t element_size){
+bool small_array_optimization (char *sort_array_char, const size_t length, compare_function_t comparator, size_t element_size){
     PushLog (3);
 
     if (length < 2){
@@ -284,41 +265,42 @@ bool sadgewick_optimization (char *sort_array, const size_t length, compare_func
     }
 
     if (length == 2){
-        if ((*comparator) (sort_array, sort_array + element_size) > 0){
-            swap_elements (sort_array, sort_array + element_size, element_size);
+        if ((*comparator) (element (0), element (1)) > 0){
+
+            swap_elements (element (0), element (1), element_size);
         }
 
         RETURN true;
     }
 
     if (length == 3){
-        int compare_first_second = (*comparator) (sort_array, sort_array + element_size);
-        int compare_second_third = (*comparator) (sort_array + element_size, sort_array + element_size * 2);
-        int compare_first_third  = (*comparator) (sort_array, sort_array + element_size * 2);
+        int compare_first_second = (*comparator) (element (0), element (1));
+        int compare_second_third = (*comparator) (element (1), element (2));
+        int compare_first_third  = (*comparator) (element (0), element (2));
 
         if (compare_first_second > 0){
             if (compare_second_third < 0){
-                swap_elements (sort_array, sort_array + element_size, element_size);
+                swap_elements (element (0), element (1), element_size);
 
                 if (compare_first_third > 0){
-                    swap_elements (sort_array + element_size, sort_array + element_size * 2, element_size);
+                    swap_elements (element (1), element (2), element_size);
                 }
             }else{
-                swap_elements (sort_array, sort_array + 2 * element_size, element_size);
+                swap_elements (element (0), element (2), element_size);
             }
         }else if (compare_first_second < 0){
             if (compare_second_third > 0){
-                swap_elements (sort_array + element_size, sort_array + 2 * element_size, element_size);
+                swap_elements (element (1), element (2), element_size);
 
                 if (compare_first_third > 0){
-                    swap_elements (sort_array, sort_array + element_size, element_size);
+                    swap_elements (element (0), element (1), element_size);
                 }
             }else if(compare_second_third > 0){
-                swap_elements (sort_array + element_size, sort_array + 2 * element_size, element_size);
+                swap_elements (element (1), element (2), element_size);
             }
         }else{
             if (compare_second_third > 0){
-                swap_elements (sort_array, sort_array + 2 * element_size, element_size);
+                swap_elements (element (0), element (2), element_size);
             }
         }
 

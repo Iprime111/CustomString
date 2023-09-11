@@ -2,6 +2,7 @@
 #include <time.h>
 
 #include "CustomAssert.h"
+#include "TextTypes.h"
 #include "Onegin.h"
 #include "string.h"
 #include "FileIO.h"
@@ -9,36 +10,35 @@
 int main(){
     PushLog (1);
 
-    char *filename = "texts/hamlet.txt"; // TODO read file name from cli args with default value of "hanlet.txt"
+    char filename[] = "texts/hamlet.txt"; // TODO read file name from cli args with default value of "hanlet.txt"
 
-    // TODO maybe write an "FileBuffer" structure to properly create it with CreateFileBuffer and descruct it with Desctruct file buffer?..
-    char **text_lines = NULL;
-    char *file_buffer = NULL;
+    FILE_BUFFER file_buffer = {};
+    TEXT_BUFFER text_lines  = {};
 
-    ssize_t file_size = -1;
+    create_file_buffer (&file_buffer, filename);
 
-    size_t new_line_count = get_file_lines (filename, &file_buffer, &file_size, &text_lines);
+    read_file_lines (filename, &file_buffer, &text_lines);
 
     int out_file_descriptor = -1;
-    custom_assert ((out_file_descriptor = open_file_w ("texts/hamlet_out.txt")) != -1, cannot_open_file, 0);
+    custom_assert ((out_file_descriptor = open_file_write ("texts/hamlet_out.txt")) != -1, cannot_open_file, 0);
 
-    qsort_custom (text_lines, new_line_count, compare_strings, sizeof (char *));
+    char delimiter [] = "------------------------------------------------------------------";
+    TEXT_LINE delimiter_line = {delimiter, sizeof (delimiter)};
 
-    write_lines (out_file_descriptor, text_lines, new_line_count);
+    qsort_custom (text_lines.lines, text_lines.line_count, compare_lines,         sizeof (TEXT_LINE));
+    write_lines (out_file_descriptor, &text_lines);
+    write_line   (out_file_descriptor, &delimiter_line);
 
-    qsort_custom (text_lines, new_line_count, compare_strings_reverse, sizeof (char *));
+    qsort_custom (text_lines.lines, text_lines.line_count, compare_lines_reverse, sizeof (TEXT_LINE));
+    write_lines  (out_file_descriptor, &text_lines);
+    write_line   (out_file_descriptor, &delimiter_line);
 
-    // TODO next 4 lines sounds like "write_result_to_file" function, aren't they?
-    write_line   (out_file_descriptor, "------------------------------------------------------------------");
-    write_lines  (out_file_descriptor, text_lines, new_line_count);
-    write_line   (out_file_descriptor, "------------------------------------------------------------------");
-    write_buffer (out_file_descriptor, file_buffer, file_size);
 
-    // TODO DesctructFileBuffer?...
+    write_buffer (out_file_descriptor, file_buffer.buffer, file_buffer.buffer_size);
+
     close_file (out_file_descriptor);
-
-    free (file_buffer);
-    free (text_lines);
+    destroy_file_buffer (&file_buffer);
+    free (text_lines.lines);
 
     RETURN 0;
 }
