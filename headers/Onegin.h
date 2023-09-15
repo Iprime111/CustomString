@@ -17,4 +17,6 @@ bool is_string_end            (char ch);
 
 size_t line_len (const char *line);
 
+void lomuto_partition (char *sort_array_char, size_t length, size_t element_size, size_t *less_count, size_t *greater_count, compare_function_t comparator);
+
 #endif

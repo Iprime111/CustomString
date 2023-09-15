@@ -4,10 +4,7 @@
 #include <fcntl.h>
 
 #include "FileIO.h"
-#include "CustomAssert.h" //
-                          // TODO move all headers file to "include/" dir, then add "-Iinclude" flag to compiler
-                          // It will separate public interface of all of your functions from its private interface and realizations
-
+#include "CustomAssert.h"
 
 size_t line_len (const char *line);
 
@@ -157,7 +154,7 @@ int open_file_write (const char *filename){
 
     int file_descriptor = -1;
 
-    custom_assert ((file_descriptor = open (filename, O_WRONLY | O_CREAT)) != -1, cannot_open_file, -1);
+    custom_assert ((file_descriptor = open (filename, O_WRONLY | O_RDONLY | O_CREAT)) != -1, cannot_open_file, -1);
 
     RETURN file_descriptor;
 }

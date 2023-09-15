@@ -499,12 +499,12 @@ Ay, marry, why was he sent into England?
 Ay me, what act,
 Ay, my good lord.
 Ay, my lord.
-Ay, my lord.
 Ay, my lord,
 Ay, my lord.
 Ay, my lord.
-Ay, my lord.
 Ay, my lord;
+Ay, my lord.
+Ay, my lord.
 Ay, my lord, and of calf-skins too.
 Ay, my lord; they stay upon your patience.
 Ay, or any show that you'll show him: be not you
@@ -992,8 +992,8 @@ Go, bid the soldiers shoot.
 Go, captain, from me greet the Danish king;
                   God be wi' you; fare you well.
 God be wi' you, sir.
-God bless you, sir!
 God bless you, sir.
+God bless you, sir!
 God ha' mercy on his soul!
 God's bodykins, man, much better: use every man
 God willing, shall not lack. Let us go in together;
@@ -1008,9 +1008,9 @@ Good gentlemen, give him a further edge,
 Good gentlemen, he hath much talk'd of you;
 Good madam!
 Good madam, stay awhile; I will be faithful.
+Good my lord!
+Good my lord!
 Good my lord,
-Good my lord!
-Good my lord!
                   Good my lord, be quiet.
 Good my lord, put your discourse into some frame and
                   Good my lord, tell it.
@@ -1841,8 +1841,8 @@ Never to speak of this that you have seen,
 New-lighted on a heaven-kissing hill;
 Next, your son gone; and he most violent author
 Niggard of question; but, of our demands,
-No!
 No.
+No!
 No, believe me, 'tis very cold; the wind is
 No, by no means.
 No, by the rood, not so:
@@ -3034,8 +3034,8 @@ Well, good night.
 We'll ha't to-morrow night. You could, for a need,
 We'll make a solemn wager on your cunnings: I ha't.
 Well may it sort that this portentous figure
-Well, my lord:
 Well, my lord.
+Well, my lord:
 We'll put on those shall praise your excellence
 We'll put the matter to the present push.
 Well ratified by law and heraldry,
@@ -3255,8 +3255,8 @@ Who's there?
 Who this had seen, with tongue in venom steep'd,
 Who was in life a foolish prating knave.
 Why,
-Why?
 Why,
+Why?
 Why I will fight with him upon this theme
 Why, any thing, but to the purpose. You were sent
 Why, as a woodcock to mine own springe, Osric;
@@ -4475,8 +4475,8 @@ be my lord such-a-one, that praised my lord
 Arm'd, my lord.
 To what end, my lord?
 Good my lord!
-Good my lord!
 Good my lord,
+Good my lord!
 A truant disposition, good my lord.
 Ay, good my lord.
 Nay, good my lord,--
@@ -4510,8 +4510,8 @@ We shall, my lord.
 Well, my lord:
 Well, my lord.
 Fare you well, my lord.
-Very well, my lord
 Very well, my lord.
+Very well, my lord
 Ay, very well, my lord.
 I will, my lord.
 We will, my lord.
@@ -4555,12 +4555,12 @@ Honest, my lord!
 The woman will be out. Adieu, my lord:
 I hear him coming: let's withdraw, my lord.
 Ay, my lord.
-Ay, my lord.
-Ay, my lord.
 Ay, my lord;
 Ay, my lord.
 Ay, my lord.
 Ay, my lord,
+Ay, my lord.
+Ay, my lord.
 What should we say, my lord?
 I shall obey, my lord.
 You are merry, my lord.
@@ -7543,8 +7543,8 @@ it: I loved you not.
 I would set down and insert in't, could you not?
 Shall you my son. You have me, have you not?
 In what particular thought to work I know not;
-Nay, I know not.
 Nay, I know not:
+Nay, I know not.
 daughter. Lord, we know what we are, but know not
 No, indeed, are they not.
 I prithee, when thou seest that act afoot,

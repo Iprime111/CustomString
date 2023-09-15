@@ -20,6 +20,7 @@ int main(){
     read_file_lines (filename, &file_buffer, &text_lines);
 
     int out_file_descriptor = -1;
+
     custom_assert ((out_file_descriptor = open_file_write ("texts/hamlet_out.txt")) != -1, cannot_open_file, 0);
 
     char delimiter [] = "------------------------------------------------------------------";

@@ -1,7 +1,7 @@
 srcDir = src
 outDir = build
 
-sources = main.cpp CustomStrings.cpp Onegin.cpp FileIO.cpp
+sources = main.cpp CustomStrings.cpp Onegin.cpp FileIO.cpp ConsoleParser.cpp
 target = CustomStrings
 
 srcObjects = $(sources:.cpp=.o)
